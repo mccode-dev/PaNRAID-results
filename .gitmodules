@@ -1,0 +1,3 @@
+[submodule "Group5/Multi_Material_Neutron_Diffraction"]
+	path = Group5/Multi_Material_Neutron_Diffraction
+	url = https://github.com/Arviin/Multi_Material_Neutron_Diffraction.git
