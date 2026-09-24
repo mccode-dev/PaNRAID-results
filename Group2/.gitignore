@@ -3,12 +3,9 @@
 *.out
 *.out.dSYM/
 
-# Raw simulation output (multi-GB; regenerate with the master/sweep scripts)
-scan_guide_xy/
-scan_sans_nosample/
-scan_sans_sample/
-dataset_cylinder/
-run_eqsans_fixed/
+# Run folders (scan_guide_xy/, scan_sans_nosample/, scan_sans_sample/,
+# dataset_cylinder/, run_eqsans_fixed/) and their .dat/.png/mccode.sim results
+# are committed -- only per-run logs and re-run scratch dirs are excluded.
 *_20[0-9][0-9][0-9][0-9][0-9][0-9]_*/
 scan_joblist*.txt
 *.log
