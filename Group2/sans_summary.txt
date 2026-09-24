@@ -1,0 +1,16 @@
+EQ-SANS guide-alignment scan: empty beam vs R=100 AA spheres
+
+centre (0,0):  no-sample 8.546e+06 n/s   sample 3.542e+05 n/s   ratio 0.0415
+peak flux   :  no-sample 8.546e+06      sample 3.684e+05
+min  flux   :  no-sample 1.063e+06      sample 4.046e+04
+scattered fraction over the whole map: mean 0.0415  std 0.0031  (min 0.0298, max 0.0601)
+
+q range covered: 0.0023 - 0.1508 1/AA
+sphere first form-factor minimum (theory): q = 0.0449 1/AA
+centre I(q) vs sphere P(q): median ratio 0.879
+
+I(q) shape vs guide misalignment (points averaged per band):
+  0-3 mm    (n= 29)  median 1.000  std 0.000  max deviation 0.0%
+  7-10 mm   (n=172)  median 1.046  std 0.040  max deviation 12.2%
+  14-17 mm  (n=292)  median 1.011  std 0.046  max deviation 13.7%
+  18-21 mm  (n=364)  median 0.972  std 0.053  max deviation 13.3%
