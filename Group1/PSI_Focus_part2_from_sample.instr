@@ -1,0 +1,104 @@
+/*******************************************************************************
+* Instrument: PSI_Focus_part2_from_sample
+*
+* %Identification
+* Written by: <a href="mailto:Uwe.Filges@psi.ch">Uwe Filges</a>
+* Date: Jan 2004
+* Origin: <a href="http://www.psi.ch">PSI</a>
+* %INSTRUMENT_SITE: PSI
+*
+* The FOCUS Spectrometer at PSI (Paul Scherrer Institute,Switzerland)
+* PART 2: sample position -> detector. Reads the MCPL file written by
+* PSI_Focus_part1_to_sample and runs the NCrystal sample + TOF detector.
+*
+* %Description
+* Second half of the split PSI_Focus model. The origin of this instrument
+* coincides with the sample position (Arm a3 of the original instrument), and
+* the neutrons are read in that same local frame, so positions, directions,
+* times and weights continue exactly where part 1 stopped.
+*
+* By default the number of neutrons simulated is set by the MCPL file
+* (number of stored neutrons x repeat_count), so -n is not needed.
+*
+* %Parameters
+* DET: [deg]         Detector angle (used only by the commented FoDet monitor)
+* time_bin: [1]      Number of time bins in the cylindrical TOF monitor
+* phi: [deg]         Sample rotation around x
+* theta: [deg]       Sample rotation around z
+* temp: [K]          Sample temperature passed to NCrystal
+* radius: [m]        Sample radius
+* hight: [m]         Sample height
+* no_incoh: [1]      If 1, switch off incoherent elastic and inelastic scattering
+* mcpl_file: [str]   MCPL file produced by part 1 (e.g. focus_at_sample.mcpl.gz)
+* repeat_count: [1]  How many times each stored neutron is reused
+*
+* %Link
+* Written by U.Filges <uwe.filges@psi.ch> PSI, Jan 2004
+* %End
+*******************************************************************************/
+DEFINE INSTRUMENT PSI_Focus_part2_from_sample(DET=-69.9, time_bin=1, phi=0, theta=0, temp=298.15, radius=0.01, hight=0.05, no_incoh=0, string mcpl_file="part1_big/focus_at_sample.mcpl.gz", repeat_count=1)
+
+DECLARE
+%{
+char ncrystal_cfg[256];
+%}
+
+INITIALIZE
+%{
+sprintf(ncrystal_cfg, "opt-out.ncmat;temp=%g;dcutoff=0.5", temp);
+if (no_incoh) {
+  strcat(ncrystal_cfg, ";incoh_elas=0;inelas=0");
+}
+%}
+
+TRACE
+
+COMPONENT a1 = Progress_bar()
+  AT (0,0,0) ABSOLUTE
+
+/* ---- SPLIT POINT ----
+   Neutrons saved at the sample position (a3 frame) by part 1. */
+COMPONENT read_at_sample = MCPL_input(
+    filename = mcpl_file,
+    repeat_count = repeat_count,
+    verbose = 1)
+  AT (0, 0, 0) RELATIVE a1
+
+/* sample position (same frame as a3 in the original instrument) */
+
+COMPONENT a3 = Arm()
+  AT (0, 0, 0) RELATIVE a1
+
+
+COMPONENT ncrystal_sample = NCrystal_sample(
+    cfg=ncrystal_cfg,
+    yheight=hight,
+    radius=radius,
+    multscat=1)
+AT (0, 0, 0) RELATIVE PREVIOUS
+ROTATED (phi, 0, theta) RELATIVE PREVIOUS
+
+COMPONENT cyl_monitor_tof = Cyl_monitor_TOF(
+    nr=2000,
+    yheight=1.5,
+    radius=1.5,
+    restore_neutron=1,
+    thmin=-150,
+    thmax=-10,
+    nt=time_bin,
+    tmin=0,
+    tmax=100000)
+AT (0, 0, 0) RELATIVE a3
+
+  /*COMPONENT TOF_Det = Monitor_nD(
+ xwidth=1.5, yheight=0.2,
+ options="auto time, abs angle limits=[10 180], banana, parallel",
+ bins=100)
+ AT(0, 0, 0) RELATIVE PREVIOUS*/
+
+  /*COMPONENT FoDet = Monitor_nD(
+  xwidth = 0.336, yheight = 0.4,
+  options="t auto file=TofDet.dat")
+  AT (0, 0, 2.5) RELATIVE a3 ROTATED (0,DET,0) RELATIVE a3*/
+
+END
