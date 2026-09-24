@@ -1,0 +1,68 @@
+mcstas simulation description file for EQ_SANS.
+Date:    Wed Sep 23 15:24:04 2026
+Program:  3.8.5, git
+
+begin instrument: EQ_SANS
+  File: /Users/georgeyumnam/WORK/PANRAID/PaNRAID-results/Group2/panraidproject/scan_guide_xy/x+03_y+11/mccode
+  Source: eqsans_1_fixed.instr
+  Parameters:  gx(double) gy(double)
+  Trace_enabled: yes
+  Default_main: yes
+  Embedded_runtime: yes
+end instrument
+
+begin simulation: /Users/georgeyumnam/WORK/PANRAID/PaNRAID-results/Group2/panraidproject/scan_guide_xy/x+03_y+11
+  Format: McCode with text headers
+  URL: http://www.mccode.org
+  Creator:  3.8.5, git
+  Instrument: eqsans_1_fixed.instr
+  Ncount: 1000000
+  Trace: no
+  Gravitation: no
+  Seed: 1790169844270825
+  Directory: /Users/georgeyumnam/WORK/PANRAID/PaNRAID-results/Group2/panraidproject/scan_guide_xy/x+03_y+11
+  Param: gx=0.003
+  Param: gy=0.011
+end simulation
+
+begin data
+  Date: Wed Sep 23 15:24:07 2026 (1790169847)
+  type: array_1d(120)
+  Source: EQ_SANS (eqsans_1_fixed.instr)
+  component: lambda_det
+  position: 0 0 22.28
+  title: Wavelength monitor
+  Ncount: 1000000
+  filename: lambda_det.dat
+  statistics: X0=4.06375; dX=0.979734;
+  signal: Min=0; Max=3.9498e+06; Mean=613290;
+  values: 7.35948e+07 653719 25330
+  xvar: L
+  yvar: (I,I_err)
+  xlabel: Wavelength [AA]
+  ylabel: Intensity
+  xlimits: 0 12
+  variables: L I I_err N
+end data
+
+begin data
+  Date: Wed Sep 23 15:24:07 2026 (1790169847)
+  type: array_2d(256, 256)
+  Source: EQ_SANS (eqsans_1_fixed.instr)
+  component: detector
+  position: 0 0 22.28
+  title: PSD monitor
+  Ncount: 1000000
+  filename: detector.dat
+  statistics: X0=-0.188643; dX=5.57965; Y0=0.355143; dY=11.5599;
+  signal: Min=0; Max=99135.2; Mean=1122.97;
+  values: 7.35948e+07 653719 25330
+  xvar: X 
+  yvar: Y 
+  xlabel: X position [cm]
+  ylabel: Y position [cm]
+  zvar: I
+  zlabel: Signal per bin
+  xylimits: -50 50 -70 70
+  variables: I I_err N
+end data

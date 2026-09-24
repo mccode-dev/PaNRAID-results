@@ -1,0 +1,66 @@
+mcstas simulation description file for EQ_SANS.
+Date:    Wed Sep 23 15:10:05 2026
+Program:  3.8.5, git
+
+begin instrument: EQ_SANS
+  File: run_eqsans_fixed/mccode
+  Source: eqsans_1_fixed.instr
+  Parameters: 
+  Trace_enabled: yes
+  Default_main: yes
+  Embedded_runtime: yes
+end instrument
+
+begin simulation: run_eqsans_fixed
+  Format: McCode with text headers
+  URL: http://www.mccode.org
+  Creator:  3.8.5, git
+  Instrument: eqsans_1_fixed.instr
+  Ncount: 10000000
+  Trace: no
+  Gravitation: no
+  Seed: 1790169005221493
+  Directory: run_eqsans_fixed
+end simulation
+
+begin data
+  Date: Wed Sep 23 15:10:26 2026 (1790169026)
+  type: array_1d(120)
+  Source: EQ_SANS (eqsans_1_fixed.instr)
+  component: lambda_det
+  position: 0 0 22.28
+  title: Wavelength monitor
+  Ncount: 10000000
+  filename: lambda_det.dat
+  statistics: X0=4.05335; dX=0.978602;
+  signal: Min=0; Max=8.98637e+06; Mean=1.40834e+06;
+  values: 1.69001e+08 311549 576034
+  xvar: L
+  yvar: (I,I_err)
+  xlabel: Wavelength [AA]
+  ylabel: Intensity
+  xlimits: 0 12
+  variables: L I I_err N
+end data
+
+begin data
+  Date: Wed Sep 23 15:10:26 2026 (1790169026)
+  type: array_2d(256, 256)
+  Source: EQ_SANS (eqsans_1_fixed.instr)
+  component: detector
+  position: 0 0 22.28
+  title: PSD monitor
+  Ncount: 10000000
+  filename: detector.dat
+  statistics: X0=0.0631277; dX=5.61738; Y0=-0.0117944; dY=11.6462;
+  signal: Min=0; Max=102851; Mean=2578.74;
+  values: 1.69001e+08 311549 576034
+  xvar: X 
+  yvar: Y 
+  xlabel: X position [cm]
+  ylabel: Y position [cm]
+  zvar: I
+  zlabel: Signal per bin
+  xylimits: -50 50 -70 70
+  variables: I I_err N
+end data

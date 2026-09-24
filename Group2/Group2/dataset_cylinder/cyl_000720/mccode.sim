@@ -1,0 +1,119 @@
+mcstas simulation description file for EQ_SANS_cylinder.
+Date:    Wed Sep 23 22:06:46 2026
+Program:  3.8.5, git
+
+begin instrument: EQ_SANS_cylinder
+  File: /Users/georgeyumnam/WORK/PANRAID/PaNRAID-results/Group2/panraidproject/dataset_cylinder/cyl_000720/mccode
+  Source: eqsans_cylinder.instr
+  Parameters:  gx(double) gy(double) sample_on(double) bs_radius(double) samp_ap(double) sld(double) sld_solvent(double) radius(double) length(double) pd_radius(double) pd_length(double) model_scale(double) model_abs(double)
+  Trace_enabled: yes
+  Default_main: yes
+  Embedded_runtime: yes
+end instrument
+
+begin simulation: /Users/georgeyumnam/WORK/PANRAID/PaNRAID-results/Group2/panraidproject/dataset_cylinder/cyl_000720
+  Format: McCode with text headers
+  URL: http://www.mccode.org
+  Creator:  3.8.5, git
+  Instrument: eqsans_cylinder.instr
+  Ncount: 5000000
+  Trace: no
+  Gravitation: no
+  Seed: 1790194006089401
+  Directory: /Users/georgeyumnam/WORK/PANRAID/PaNRAID-results/Group2/panraidproject/dataset_cylinder/cyl_000720
+  Param: gx=0
+  Param: gy=0
+  Param: sample_on=1
+  Param: bs_radius=0
+  Param: samp_ap=0.01
+  Param: sld=3.72867
+  Param: sld_solvent=1
+  Param: radius=66.3067
+  Param: length=380.882
+  Param: pd_radius=0.254023
+  Param: pd_length=0.132369
+  Param: model_scale=1
+  Param: model_abs=0
+end simulation
+
+begin data
+  Date: Wed Sep 23 22:07:03 2026 (1790194023)
+  type: array_1d(120)
+  Source: EQ_SANS_cylinder (eqsans_cylinder.instr)
+  component: lambda_det
+  position: 0 0 22.28
+  title: Wavelength monitor
+  Ncount: 5000000
+  filename: lambda_det.dat
+  statistics: X0=4.32314; dX=1.01824;
+  signal: Min=0; Max=1.44466e+11; Mean=2.86706e+10;
+  values: 3.44047e+12 4.36632e+10 282084
+  xvar: L
+  yvar: (I,I_err)
+  xlabel: Wavelength [AA]
+  ylabel: Intensity
+  xlimits: 0 12
+  variables: L I I_err N
+end data
+
+begin data
+  Date: Wed Sep 23 22:07:03 2026 (1790194023)
+  type: array_2d(256, 256)
+  Source: EQ_SANS_cylinder (eqsans_cylinder.instr)
+  component: detector
+  position: 0 0 22.28
+  title: PSD monitor
+  Ncount: 5000000
+  filename: detector.dat
+  statistics: X0=0.098563; dX=9.54487; Y0=0.000604554; dY=9.99096;
+  signal: Min=0; Max=8.03109e+09; Mean=5.24973e+07;
+  values: 3.44047e+12 4.36632e+10 282084
+  xvar: X 
+  yvar: Y 
+  xlabel: X position [cm]
+  ylabel: Y position [cm]
+  zvar: I
+  zlabel: Signal per bin
+  xylimits: -50 50 -70 70
+  variables: I I_err N
+end data
+
+begin data
+  Date: Wed Sep 23 22:07:03 2026 (1790194023)
+  type: array_1d(100)
+  Source: EQ_SANS_cylinder (eqsans_cylinder.instr)
+  component: qmon
+  position: 0 0 22.281
+  title: QMonitor - Radially averaged distribution
+  Ncount: 5000000
+  filename: rdet.dat
+  statistics: X0=0.0599605; dX=0.053355;
+  signal: Min=1.18073e+12; Max=2.36696e+15; Mean=3.11423e+14;
+  values: 3.11423e+16 9.57343e+14 158816
+  xvar: r
+  yvar: (I,I_err)
+  xlabel: Radius [m]
+  ylabel: I(r)
+  xlimits: 0 0.5
+  variables: r I I_err N
+end data
+
+begin data
+  Date: Wed Sep 23 22:07:03 2026 (1790194023)
+  type: array_1d(100)
+  Source: EQ_SANS_cylinder (eqsans_cylinder.instr)
+  component: qmon
+  position: 0 0 22.281
+  title: QMonitor - Distribution in q (Radially averaged)
+  Ncount: 5000000
+  filename: qdet.dat
+  statistics: X0=0.0112235; dX=0.00984627;
+  signal: Min=1.7997e+11; Max=8.88425e+15; Mean=8.02328e+14;
+  values: 8.02328e+16 2.58235e+15 251993
+  xvar: q
+  yvar: (I,I_err)
+  xlabel: q [1 / AA]
+  ylabel: I(q)
+  xlimits: 0 0.151561
+  variables: q I I_err N
+end data

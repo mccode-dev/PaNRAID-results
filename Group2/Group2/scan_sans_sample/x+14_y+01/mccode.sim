@@ -1,0 +1,113 @@
+mcstas simulation description file for EQ_SANS_sample.
+Date:    Wed Sep 23 19:32:47 2026
+Program:  3.8.5, git
+
+begin instrument: EQ_SANS_sample
+  File: /Users/georgeyumnam/WORK/PANRAID/PaNRAID-results/Group2/panraidproject/scan_sans_sample/x+14_y+01/mccode
+  Source: eqsans_sans.instr
+  Parameters:  gx(double) gy(double) sample_on(double) R_sphere(double) Phi(double) bs_radius(double) samp_ap(double)
+  Trace_enabled: yes
+  Default_main: yes
+  Embedded_runtime: yes
+end instrument
+
+begin simulation: /Users/georgeyumnam/WORK/PANRAID/PaNRAID-results/Group2/panraidproject/scan_sans_sample/x+14_y+01
+  Format: McCode with text headers
+  URL: http://www.mccode.org
+  Creator:  3.8.5, git
+  Instrument: eqsans_sans.instr
+  Ncount: 10000000
+  Trace: no
+  Gravitation: no
+  Seed: 1790184767659731
+  Directory: /Users/georgeyumnam/WORK/PANRAID/PaNRAID-results/Group2/panraidproject/scan_sans_sample/x+14_y+01
+  Param: gx=0.014
+  Param: gy=0.001
+  Param: sample_on=1
+  Param: R_sphere=100
+  Param: Phi=0.01
+  Param: bs_radius=0
+  Param: samp_ap=0.01
+end simulation
+
+begin data
+  Date: Wed Sep 23 19:33:22 2026 (1790184802)
+  type: array_1d(120)
+  Source: EQ_SANS_sample (eqsans_sans.instr)
+  component: lambda_det
+  position: 0 0 22.28
+  title: Wavelength monitor
+  Ncount: 10000000
+  filename: lambda_det.dat
+  statistics: X0=4.4306; dX=1.02056;
+  signal: Min=0; Max=10676.1; Mean=1388.26;
+  values: 166591 9752.35 5339
+  xvar: L
+  yvar: (I,I_err)
+  xlabel: Wavelength [AA]
+  ylabel: Intensity
+  xlimits: 0 12
+  variables: L I I_err N
+end data
+
+begin data
+  Date: Wed Sep 23 19:33:22 2026 (1790184802)
+  type: array_2d(256, 256)
+  Source: EQ_SANS_sample (eqsans_sans.instr)
+  component: detector
+  position: 0 0 22.28
+  title: PSD monitor
+  Ncount: 10000000
+  filename: detector.dat
+  statistics: X0=-1.16341; dX=9.65451; Y0=0.117576; dY=10.3835;
+  signal: Min=0; Max=1899.15; Mean=2.54197;
+  values: 166591 9752.35 5339
+  xvar: X 
+  yvar: Y 
+  xlabel: X position [cm]
+  ylabel: Y position [cm]
+  zvar: I
+  zlabel: Signal per bin
+  xylimits: -50 50 -70 70
+  variables: I I_err N
+end data
+
+begin data
+  Date: Wed Sep 23 19:33:22 2026 (1790184802)
+  type: array_1d(100)
+  Source: EQ_SANS_sample (eqsans_sans.instr)
+  component: qmon
+  position: 0 0 22.281
+  title: QMonitor - Radially averaged distribution
+  Ncount: 10000000
+  filename: rdet.dat
+  statistics: X0=0.0635143; dX=0.0572954;
+  signal: Min=0; Max=2.86278e+08; Mean=1.42408e+07;
+  values: 1.42408e+09 3.03725e+08 2993
+  xvar: r
+  yvar: (I,I_err)
+  xlabel: Radius [m]
+  ylabel: I(r)
+  xlimits: 0 0.5
+  variables: r I I_err N
+end data
+
+begin data
+  Date: Wed Sep 23 19:33:22 2026 (1790184802)
+  type: array_1d(100)
+  Source: EQ_SANS_sample (eqsans_sans.instr)
+  component: qmon
+  position: 0 0 22.281
+  title: QMonitor - Distribution in q (Radially averaged)
+  Ncount: 10000000
+  filename: qdet.dat
+  statistics: X0=0.0125614; dX=0.0103198;
+  signal: Min=7686.68; Max=5.18774e+08; Mean=3.29982e+07;
+  values: 3.29982e+09 5.7676e+08 4809
+  xvar: q
+  yvar: (I,I_err)
+  xlabel: q [1 / AA]
+  ylabel: I(q)
+  xlimits: 0 0.151561
+  variables: q I I_err N
+end data

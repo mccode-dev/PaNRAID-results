@@ -1,0 +1,269 @@
+/*******************************************************************************
+* Instrument: template_simple
+*
+* %I
+* Written by: Fahima Islam (isalmff@ornl.gov)
+* Date: current date
+* Origin: your institution
+* %INSTRUMENT_SITE: Templates
+*
+* instrument short description
+*
+* %D
+* instrument description
+*
+* Example: parameters=values
+*
+* %P
+* Par1: [unit] Parameter1 description # IN the paper all the units are in milimeter
+*
+* %L
+* <reference/HTML link>
+*
+* %E
+*******************************************************************************/
+DEFINE INSTRUMENT EQ_SANS()
+
+// Parameters for the instrument
+// guide's cross section 6.59 inch (height) and width 11 inch
+//chopper cross section 11.97 inch (height)
+DECLARE
+%{
+  double dc1_t0, dc2_t0, dc3_t0;
+  double lambda =4.75;
+  double L1 = 14.0;  // Moderator-to-sample distance (m), EQ-SANS nominal
+  double guide_start = 1.13;  // Moderator-to-guide-entrance distance (m)
+  double L2 = 4.0;  // Sample-to-detector distance (m), EQ-SANS range 1.3-9
+  double L2_min = 1.3;  // Minimum secondary flight path (m)
+  double L2_max = 9.0;  // Maximum secondary flight path (m)
+  double sample_width = 0.02;  // Sample width (m)
+  double sample_height = 0.02;  // Sample height (m)
+  double detector_width = 1.0;  // Detector width (m)
+  double detector_height = 1.4;  // Detector height (m)
+  double chopper1_distance = 5.7;  // Distance of chopper1 from the source (m)
+  double chopper2_distance = 7.8;  // Distance of chopper2 from the source (m)
+  double chopper3_distance = 9.5;  // Distance of chopper3 from the source (m)
+%}
+
+// Initialize the instrument components
+INITIALIZE
+%{
+  // Initialization code
+
+dc1_t0 = chopper1_distance/3956*lambda;
+dc2_t0 = chopper2_distance/3956*lambda;
+dc3_t0 = chopper3_distance/3956*lambda;
+%}
+TRACE
+// Start defining components
+/**
+COMPONENT source = Source_gen(
+  radius = 0.1, 
+  dist = L1,
+  focus_xw = 0.04, 
+  focus_yh = , 
+  lambda0 = 4.75, 
+  dlambda = 1.5, 
+  flux = 1e12
+)
+AT (0, 0, 0) RELATIVE ABSOLUTE
+**/
+COMPONENT source = SNS_source(
+	filename = "a1G3AD-5-f5.dat", xwidth = 0.1, yheight = 0.12,
+	dist = guide_start, focus_xw = 0.04, focus_yh = 0.04,
+	Emin = 1.5 , Emax = 14.2) // 1.5-14.2 meV = 2.4-7.4 A, brackets the 4.75 A chopper band
+	AT (0, 0, 0) RELATIVE ABSOLUTE
+
+// Neutron guides and collimators
+COMPONENT opening = Guide_gravity(
+  w1 = 0.04, 
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 3.3, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (0, 0, guide_start) RELATIVE source
+
+/**
+COMPONENT Guide1 = Guide_gravity(
+    w1 = 0.06662, h1 = 0.0792, w2 = 0.06135, h2 = 0.07204,
+    l = 1.747, R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003)
+  AT (0, 0, L1) RELATIVE Origin		//7.17119 absolute
+**/
+COMPONENT collimator = Collimator_linear(
+  xmin = -0.02, 
+  xmax = 0.02, 
+  ymin = -0.02, 
+  ymax = 0.02, 
+  length = 0.27
+)
+AT (0, 0, 3.3) RELATIVE opening
+
+COMPONENT guide0 = Guide_gravity(
+  w1 = 0.04, 
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 1.0, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (0, 0, 0.27) RELATIVE collimator
+
+// Choppers
+COMPONENT chopper1 = DiskChopper(
+  radius = 0.3, 
+  yheight = 0.1, 
+  nu = 60, 
+  theta_0 = 131.8, // need to confirm
+  nslit = 1,
+  delay = dc1_t0
+)
+AT (0, 0, chopper1_distance) RELATIVE source
+
+/**
+COMPONENT BWChopper1 = DiskChopper(
+    theta_0 = 131.8, radius = .319, yheight = .134, nu = frequency, 
+    nslit = 1, delay = dc1_t0)
+  AT (0, 0, 7.095) RELATIVE Origin
+**/
+
+// guide after T1 chopper
+
+COMPONENT guide1 = Guide_gravity(
+  w1 = 0.04, /// NOT SURE ABOUT THESE DIMENSIONS
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 2.0, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (0, 0, 0.00) RELATIVE chopper1
+
+
+COMPONENT chopper2 = DiskChopper(
+  radius = 0.3, 
+  yheight = 0.1, 
+  nu = 60, 
+  theta_0 = 160.0,
+  nslit = 1,
+  delay = dc2_t0
+)
+AT (0, 0, chopper2_distance - chopper1_distance) RELATIVE chopper1
+
+// guide after T2 chopper
+
+COMPONENT guide2 = Guide_gravity(
+  w1 = 0.04, /// NOT SURE ABOUT THESE DIMENSIONS
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 1.6, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (0, 0, 0.00) RELATIVE chopper2
+
+COMPONENT chopper3 = DiskChopper(
+  radius = 0.3, 
+  yheight = 0.1, 
+  nu = 60, 
+  theta_0 = 204,
+  nslit = 1,
+  delay = dc3_t0
+)
+AT (0, 0, chopper3_distance - chopper2_distance) RELATIVE chopper2
+
+// guide after T3 chopper
+
+COMPONENT guide3 = Guide_gravity(
+  w1 = 0.04, /// NOT SURE ABOUT THESE DIMENSIONS
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 0.468, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (0, 0, 0.00) RELATIVE chopper3
+
+// beam slits
+
+COMPONENT slit1 = Slit(
+  xmin = -0.02, 
+  xmax = 0.02, 
+  ymin = -0.02, 
+  ymax = 0.02
+)
+AT (0, 0, 10.08) RELATIVE source
+
+COMPONENT slit2 = Slit(
+  xmin = -0.02, 
+  xmax = 0.02, 
+  ymin = -0.02, 
+  ymax = 0.02
+)
+AT (0, 0, 0.1) RELATIVE slit1
+
+COMPONENT slit3 = Slit(
+  xmin = -0.02, 
+  xmax = 0.02, 
+  ymin = -0.02, 
+  ymax = 0.02
+)
+AT (0, 0, 0.1) RELATIVE slit2
+
+// Sample position: EQ-SANS moderator-to-sample distance is 14 m
+COMPONENT sample_pos = Arm()
+AT (0, 0, L1) RELATIVE source
+
+COMPONENT sample_lambda = L_monitor(
+  nL = 200,
+  filename = "sample_lambda.dat",
+  xwidth = 0.05,
+  yheight = 0.05,
+  Lmin = 0, Lmax = 10,
+  restore_neutron = 1
+)
+AT (0, 0, 0) RELATIVE sample_pos
+
+COMPONENT sample_tof = TOF_monitor(
+  nt = 200,
+  filename = "sample_tof.dat",
+  xwidth = 0.05,
+  yheight = 0.05,
+  tmin = 0, tmax = 40000,
+  restore_neutron = 1
+)
+AT (0, 0, 0) RELATIVE sample_pos
+
+COMPONENT sample_psd = PSD_monitor(
+  nx = 128,
+  ny = 128,
+  filename = "sample_psd.dat",
+  xwidth = 0.05,
+  yheight = 0.05,
+  restore_neutron = 1
+)
+AT (0, 0, 0) RELATIVE sample_pos
+
+// Detector
+COMPONENT detector = PSD_monitor(
+  nx = 256,
+  ny = 256,
+  xwidth = detector_width,
+  yheight = detector_height
+)
+AT (0, 0, L2) RELATIVE sample_pos
+
+FINALLY
+%{
+  // Finalize code
+%}
+
+END
+

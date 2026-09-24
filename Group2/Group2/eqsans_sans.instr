@@ -1,0 +1,275 @@
+/*******************************************************************************
+* Instrument: template_simple
+*
+* %I
+* Written by: Fahima Islam (isalmff@ornl.gov)
+* Date: current date
+* Origin: your institution
+* %INSTRUMENT_SITE: Templates
+*
+* instrument short description
+*
+* %D
+* instrument description
+*
+* Example: parameters=values
+*
+* %P
+* Par1: [unit] Parameter1 description # IN the paper all the units are in milimeter
+*
+* %L
+* <reference/HTML link>
+*
+* %E
+*******************************************************************************/
+DEFINE INSTRUMENT EQ_SANS_sample(gx=0, gy=0, sample_on=1, R_sphere=100, Phi=0.01, bs_radius=0, samp_ap=0.01)
+// gx,gy     guide-entrance offset (m), 0 = nominal
+// sample_on 1 = spheres in beam, 0 = empty beam (identical geometry otherwise)
+// R_sphere sphere radius (AA);  Phi particle volume fraction
+// bs_radius beamstop radius (m), 0 = no beamstop
+// samp_ap  sample aperture RADIUS (m)
+
+// Parameters for the instrument
+// guide's cross section 6.59 inch (height) and width 11 inch
+//chopper cross section 11.97 inch (height)
+DECLARE
+%{
+  double dc1_t0, dc2_t0, dc3_t0;
+  double lambda =4.75;
+  double L1 = 14.0;  // Primary flight path (m)  (NOT used for the guide position any more)
+  double guide_start = 1.13; // moderator -> guide entrance (m); opening(3.3)+collimator(0.27)+guide0(1.0) must end before chopper1 at 5.7 m
+  double L2 = 8.28;     // Sample-to-detector distance (m); sample 14 m, detector 22.28 m
+  double L2_min = 1.0;  // Minimum secondary flight path (m)
+  double L2_max = 10.0;  // Maximum secondary flight path (m)
+  double sample_width = 0.02;  // Sample width (m)
+  double sample_height = 0.02;  // Sample height (m)
+  double detector_width = 1.0;  // Detector width (m)
+  double detector_height = 1.4;  // Detector height (m)
+  double chopper1_distance = 5.7;  // Distance of chopper1 from the source (m)
+  double chopper2_distance = 7.8;  // Distance of chopper2 from the source (m)
+  double chopper3_distance = 9.5;  // Distance of chopper3 from the source (m)
+%}
+
+// Initialize the instrument components
+INITIALIZE
+%{
+  // Initialization code
+
+dc1_t0 = chopper1_distance/3960*lambda;
+dc2_t0 = chopper2_distance/3960*lambda;
+dc3_t0 = chopper3_distance/3960*lambda;
+%}
+TRACE
+// Start defining components
+/**
+COMPONENT source = Source_gen(
+  radius = 0.1, 
+  dist = L1,
+  focus_xw = 0.04, 
+  focus_yh = , 
+  lambda0 = 4.75, 
+  dlambda = 1.5, 
+  flux = 1e12
+)
+AT (0, 0, 0) RELATIVE ABSOLUTE
+**/
+COMPONENT source = SNS_source(
+	filename = "a1G3AD-5-f5.dat", xwidth = 0.1, yheight = 0.12,
+	dist = guide_start, focus_xw = 0.04, focus_yh = 0.04,
+	Emin = 1.28, Emax = 20.45) // 8 A .. 2 A  (E[meV] = 81.81/lambda^2). Old 7..82 meV = 3.4..1.0 A only //before Emin = 0.001 (285 A), Emax = 10000(0.09A), emin7, emax82, emin 9.02 (3 ang) emax 20.44 (2 ang), emax 81.78 (1 angs)
+	AT (0, 0, 0) RELATIVE ABSOLUTE
+
+// Neutron guides and collimators
+COMPONENT opening = Guide_gravity(
+  w1 = 0.04, 
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 3.3, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (gx, gy, guide_start) RELATIVE source
+
+/**
+COMPONENT Guide1 = Guide_gravity(
+    w1 = 0.06662, h1 = 0.0792, w2 = 0.06135, h2 = 0.07204,
+    l = 1.747, R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003)
+  AT (0, 0, L1) RELATIVE Origin		//7.17119 absolute
+**/
+COMPONENT collimator = Collimator_linear(
+  xmin = -0.02, 
+  xmax = 0.02, 
+  ymin = -0.02, 
+  ymax = 0.02, 
+  length = 0.27
+)
+AT (0, 0, 3.3) RELATIVE opening
+
+COMPONENT guide0 = Guide_gravity(
+  w1 = 0.04, 
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 1.0, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (0, 0, 0.27) RELATIVE collimator
+
+// Choppers
+COMPONENT chopper1 = DiskChopper(
+  radius = 0.3, 
+  yheight = 0.1, 
+  nu = 60, 
+  theta_0 = 131.8, // need to confirm
+  nslit = 1,
+  delay = dc1_t0
+)
+AT (0, 0, chopper1_distance) RELATIVE source
+
+/**
+COMPONENT BWChopper1 = DiskChopper(
+    theta_0 = 131.8, radius = .319, yheight = .134, nu = frequency, 
+    nslit = 1, delay = dc1_t0)
+  AT (0, 0, 7.095) RELATIVE Origin
+**/
+
+// guide after T1 chopper
+
+COMPONENT guide1 = Guide_gravity(
+  w1 = 0.04, /// NOT SURE ABOUT THESE DIMENSIONS
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 2.0, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (0, 0, 0.00) RELATIVE chopper1
+
+
+COMPONENT chopper2 = DiskChopper(
+  radius = 0.3, 
+  yheight = 0.1, 
+  nu = 60, 
+  theta_0 = 160.0,
+  nslit = 1,
+  delay = dc2_t0
+)
+AT (0, 0, chopper2_distance - chopper1_distance) RELATIVE chopper1
+
+// guide after T2 chopper
+
+COMPONENT guide2 = Guide_gravity(
+  w1 = 0.04, /// NOT SURE ABOUT THESE DIMENSIONS
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 1.6, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (0, 0, 0.00) RELATIVE chopper2
+
+COMPONENT chopper3 = DiskChopper(
+  radius = 0.3, 
+  yheight = 0.1, 
+  nu = 60, 
+  theta_0 = 204,
+  nslit = 1,
+  delay = dc3_t0
+)
+AT (0, 0, chopper3_distance - chopper2_distance) RELATIVE chopper2
+
+// guide after T3 chopper
+
+COMPONENT guide3 = Guide_gravity(
+  w1 = 0.04, /// NOT SURE ABOUT THESE DIMENSIONS
+  h1 = 0.04, 
+  w2 = 0.04, 
+  h2 = 0.04, 
+  l = 0.468, 
+  R0 = 0.99, Qc = 0.0219, alpha = 5.707, m = 3,
+    W = 0.003
+)
+AT (0, 0, 0.00) RELATIVE chopper3
+
+// beam slits
+
+COMPONENT slit1 = Slit(
+  xmin = -0.02, 
+  xmax = 0.02, 
+  ymin = -0.02, 
+  ymax = 0.02
+)
+AT (0, 0, 10.08) RELATIVE source
+
+COMPONENT slit2 = Slit(
+  xmin = -0.02, 
+  xmax = 0.02, 
+  ymin = -0.02, 
+  ymax = 0.02
+)
+AT (0, 0, 0.1) RELATIVE slit1
+
+COMPONENT slit3 = Slit(
+  xmin = -0.02, 
+  xmax = 0.02, 
+  ymin = -0.02, 
+  ymax = 0.02
+)
+AT (0, 0, 0.1) RELATIVE slit2
+
+// ---- sample position: EQ-SANS moderator-to-sample distance is 14 m -------
+COMPONENT sample_pos = Arm()
+AT (0, 0, L1) RELATIVE source
+
+// Sample aperture: pinhole-SANS collimation. Without this the direct beam at
+// the detector is ~13 x 32 cm and no sensible beamstop can be used.
+COMPONENT sample_aperture = Slit(radius = samp_ap)
+AT (0, 0, -0.02) RELATIVE sample_pos
+
+// Monodisperse hard spheres in dilute solution.
+// Scattering is focused onto the detector for statistics.
+COMPONENT sample = Sans_spheres(
+  R = R_sphere, Phi = Phi, Delta_rho = 0.6, sigma_abs = 0.05,
+  xwidth = 0.02, yheight = 0.02, zdepth = 0.005,
+  target_x = 0, target_y = 0, target_z = L2,
+  focus_xw = detector_width, focus_yh = detector_height)
+WHEN (sample_on)
+AT (0, 0, 0) RELATIVE sample_pos
+
+// ---- detection ----------------------------------------------------------
+COMPONENT beamstop = Beamstop(radius = bs_radius)
+WHEN (bs_radius > 0)
+AT (0, 0, L2 - 0.05) RELATIVE sample_pos
+
+COMPONENT lambda_det = L_monitor(nL=120, Lmin=0, Lmax=12, xwidth=detector_width, yheight=detector_height, filename="lambda_det.dat", restore_neutron=1)
+AT (0, 0, L2) RELATIVE sample_pos
+
+COMPONENT detector = PSD_monitor(
+  nx = 256,
+  ny = 256,
+  xwidth = detector_width,
+  yheight = detector_height,
+  restore_neutron = 1
+)
+AT (0, 0, L2) RELATIVE sample_pos
+
+COMPONENT qmon = SANSQMonitor(
+  NumberOfBins = 100,
+  RFilename = "rdet.dat", qFilename = "qdet.dat",
+  RadiusDetector = 0.5,
+  DistanceFromSample = L2,
+  LambdaMin = 2.5, Lambda0 = 0)
+AT (0, 0, L2 + 0.001) RELATIVE sample_pos
+
+FINALLY
+%{
+  // Finalize code
+%}
+
+END
+
