@@ -1,0 +1,479 @@
+<title>EQ-SANS ML Campaign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfaf8; --panel: #ffffff; --ink: #1b1b1f; --muted: #5b5b63;
+    --line: #e6e3dc; --accent: #2f6f4f; --accent-ink: #ffffff; --accent-soft: #eaf5ee;
+    --warn-bg: #fff4e5; --warn-line: #e8b96b; --warn-ink: #7a4a00;
+    --good-bg: #eaf5ee; --good-line: #8ec6a4; --bad-bg: #fdeceb; --bad-line: #e8a39c;
+    --code-bg: #f1efe9; --shadow: 0 1px 2px rgba(0,0,0,.05), 0 10px 28px rgba(0,0,0,.06);
+    --detector: #b3564a; --guide: #cdbf8f; --chopper: #2f6f4f;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16171a; --panel: #1e2023; --ink: #eceae4; --muted: #a3a29c;
+      --line: #34363a; --accent: #6fd39a; --accent-ink: #10241a; --accent-soft: #17261d;
+      --warn-bg: #2c2410; --warn-line: #7a5a1c; --warn-ink: #e9c37a;
+      --good-bg: #142a1d; --good-line: #2f6f4f; --bad-bg: #2a1616; --bad-line: #7a3c37;
+      --code-bg: #232527; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.4);
+      --detector: #d98a80; --guide: #8d8360; --chopper: #6fd39a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16171a; --panel: #1e2023; --ink: #eceae4; --muted: #a3a29c;
+    --line: #34363a; --accent: #6fd39a; --accent-ink: #10241a; --accent-soft: #17261d;
+    --warn-bg: #2c2410; --warn-line: #7a5a1c; --warn-ink: #e9c37a;
+    --good-bg: #142a1d; --good-line: #2f6f4f; --bad-bg: #2a1616; --bad-line: #7a3c37;
+    --code-bg: #232527; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.4);
+    --detector: #d98a80; --guide: #8d8360; --chopper: #6fd39a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 40px 20px 90px; }
+  header.hero {
+    padding: 50px 20px 0; border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(700px 260px at 85% -10%, var(--accent-soft), transparent 65%),
+      linear-gradient(180deg, var(--panel), var(--bg));
+  }
+  header.hero .wrap { padding-top: 0; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+  h1 { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 36px; margin: 12px 0 10px; letter-spacing: -.01em; }
+  .subtitle { color: var(--muted); font-size: 16.5px; max-width: 64ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  .pill {
+    border: 1px solid var(--line); background: var(--panel); color: var(--muted);
+    border-radius: 999px; padding: 5px 12px; font-size: 12.5px;
+  }
+  .stat-strip {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px;
+    background: var(--line); border: 1px solid var(--line); border-radius: 12px;
+    overflow: hidden; margin-top: 28px;
+  }
+  @media (max-width: 760px) { .stat-strip { grid-template-columns: repeat(3, 1fr); } }
+  .stat-strip div { background: var(--panel); padding: 14px 12px; text-align: center; }
+  .stat-strip .n { font-family: "Fraunces", Georgia, serif; font-size: 21px; font-weight: 600; color: var(--accent); display: block; }
+  .stat-strip .l { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  section { margin-top: 50px; }
+  .sec-head { display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin: 0 0 22px; }
+  .sec-num {
+    font-family: "Fraunces", Georgia, serif; font-size: 15px; font-weight: 600; color: var(--accent-ink);
+    background: var(--accent); width: 26px; height: 26px; min-width: 26px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 0; font-weight: 700; }
+  h3 { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 19px; margin: 30px 0 10px; }
+  p { margin: 0 0 14px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px 22px; box-shadow: var(--shadow);
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  @media (max-width: 640px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tbl-wrap { overflow-x: auto; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+  code { background: var(--code-bg); padding: .1em .4em; border-radius: 5px; }
+  .callout { border-radius: 12px; padding: 16px 18px; margin: 16px 0; border: 1px solid; }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-line); color: var(--warn-ink); }
+  .callout.good { background: var(--good-bg); border-color: var(--good-line); }
+  .callout.bad  { background: var(--bad-bg);  border-color: var(--bad-line); }
+  .callout .lbl { font-weight: 700; text-transform: uppercase; font-size: 11.5px; letter-spacing: .06em; display: block; margin-bottom: 6px; }
+  figure { margin: 20px 0; }
+  figure img, figure svg { display: block; width: 100%; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); }
+  figcaption { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .badge.good { background: var(--good-bg); border: 1px solid var(--good-line); }
+  .badge.bad { background: var(--bad-bg); border: 1px solid var(--bad-line); }
+  ol.steps { padding-left: 0; list-style: none; counter-reset: step; }
+  ol.steps li { counter-increment: step; padding: 10px 0 10px 40px; position: relative; border-bottom: 1px solid var(--line); }
+  ol.steps li:last-child { border-bottom: none; }
+  ol.steps li::before {
+    content: counter(step); position: absolute; left: 0; top: 8px; width: 26px; height: 26px;
+    border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-weight: 700;
+    font-size: 12.5px; display: flex; align-items: center; justify-content: center;
+  }
+  ul.tick { padding-left: 0; list-style: none; }
+  ul.tick li { padding: 5px 0 5px 24px; position: relative; }
+  ul.tick li::before { content: "\2192"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .filelist { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 8px; }
+  .filelist div { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; background: var(--panel); }
+  footer { color: var(--muted); font-size: 12.5px; text-align: center; padding: 30px 20px 10px; }
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PaNRAID School &middot; Group 2 &middot; Final Project</div>
+    <h1>EQ-SANS Cylinder ML Campaign</h1>
+    <p class="subtitle">Simulating a fixed ORNL EQ-SANS instrument under variable alignment and sample state, then training PyTorch regressors to jointly recover instrument and sample parameters from the resulting scattering pattern.</p>
+    <div class="meta-row">
+      <span class="pill">McStas 3.8.5</span>
+      <span class="pill">PyTorch &middot; CUDA (A100)</span>
+      <span class="pill">Juliet / mesonet, account m26216</span>
+    </div>
+    <div class="stat-strip">
+      <div><span class="n">5,000</span><span class="l">instances</span></div>
+      <div><span class="n">10,000</span><span class="l">McStas runs</span></div>
+      <div><span class="n">7</span><span class="l">targets</span></div>
+      <div><span class="n">9</span><span class="l">models</span></div>
+      <div><span class="n">112</span><span class="l">cores / batch</span></div>
+      <div><span class="n">70/15/15</span><span class="l">train/val/test</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section id="overview">
+    <div class="sec-head"><span class="sec-num">1</span><h2>What this campaign asks</h2></div>
+    <p><strong>Task.</strong> Given one simulated EQ-SANS measurement &mdash; a 2D detector image and its radially-averaged I(q) curve &mdash; jointly regress <strong>seven targets</strong>: the guide's misalignment offset (<code>gx_mm</code>, <code>gy_mm</code>), and the sample's cylinder geometry (<code>radius</code>, <code>length</code>, <code>pd_radius</code>, <code>pd_length</code>) and scattering contrast (<code>contrast</code>).</p>
+    <p>Every instance is simulated twice &mdash; once with the sample present, once without &mdash; at the <em>same</em> instrument state, so the model sees both a calibration reference and the scattering measurement it modifies.</p>
+
+    <figure>
+      <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pipeline: sampling to simulation to two models to seven targets">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"></path>
+          </marker>
+        </defs>
+        <style>
+          .box { fill: var(--panel); stroke: var(--line); stroke-width: 1.4; rx: 10; }
+          .boxlabel { fill: var(--ink); font: 600 13px -apple-system,sans-serif; }
+          .boxsub { fill: var(--muted); font: 11px -apple-system,sans-serif; }
+          .flow { stroke: var(--muted); stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+          .stagehead { fill: var(--accent); font: 700 10px -apple-system,sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+        </style>
+
+        <text x="30" y="24" class="stagehead">Design</text>
+        <rect x="20" y="34" width="150" height="86" class="box"></rect>
+        <text x="35" y="58" class="boxlabel">LHS sampling</text>
+        <text x="35" y="76" class="boxsub">gx,gy (15% aligned)</text>
+        <text x="35" y="92" class="boxsub">radius,length,pd_*</text>
+        <text x="35" y="108" class="boxsub">material -&gt; contrast</text>
+
+        <text x="215" y="24" class="stagehead">Simulate</text>
+        <rect x="205" y="34" width="180" height="86" class="box"></rect>
+        <text x="220" y="58" class="boxlabel">eqsans_cylinder.instr</text>
+        <text x="220" y="76" class="boxsub">sample_on = 0 / 1</text>
+        <text x="220" y="92" class="boxsub">SasView_cylinder</text>
+        <text x="220" y="108" class="boxsub">McStas, ncount=2e6</text>
+
+        <text x="435" y="24" class="stagehead">Observe</text>
+        <rect x="425" y="34" width="150" height="86" class="box"></rect>
+        <text x="440" y="58" class="boxlabel">detector.dat</text>
+        <text x="440" y="76" class="boxsub">256x256 image</text>
+        <text x="440" y="96" class="boxlabel">qdet.dat</text>
+        <text x="440" y="114" class="boxsub">I(q) curve</text>
+
+        <text x="625" y="24" class="stagehead">Model</text>
+        <rect x="615" y="34" width="130" height="40" class="box"></rect>
+        <text x="630" y="58" class="boxlabel">CNN (image)</text>
+        <rect x="615" y="80" width="130" height="40" class="box"></rect>
+        <text x="630" y="104" class="boxlabel">MLP (I(q))</text>
+
+        <text x="795" y="24" class="stagehead">Targets</text>
+        <rect x="785" y="34" width="100" height="86" class="box"></rect>
+        <text x="798" y="54" class="boxsub">gx_mm, gy_mm</text>
+        <text x="798" y="70" class="boxsub">radius, length</text>
+        <text x="798" y="86" class="boxsub">pd_radius</text>
+        <text x="798" y="102" class="boxsub">pd_length</text>
+        <text x="798" y="118" class="boxsub">contrast</text>
+
+        <path d="M170,77 H205" class="flow"></path>
+        <path d="M385,77 H425" class="flow"></path>
+        <path d="M575,55 H615 M575,100 H615" class="flow"></path>
+        <path d="M745,55 H785 M745,100 H785" class="flow"></path>
+
+        <text x="30" y="175" class="stagehead">Where each model wins (found in results, not assumed)</text>
+        <rect x="20" y="188" width="420" height="90" rx="10" fill="var(--good-bg)" stroke="var(--good-line)"></rect>
+        <text x="36" y="212" class="boxlabel">CNN sees the 2D image</text>
+        <text x="36" y="232" class="boxsub">-&gt; dominates gx_mm / gy_mm</text>
+        <text x="36" y="248" class="boxsub">(misalignment breaks radial symmetry;</text>
+        <text x="36" y="262" class="boxsub">only visible off-axis, in 2D)</text>
+
+        <rect x="460" y="188" width="420" height="90" rx="10" fill="var(--good-bg)" stroke="var(--good-line)"></rect>
+        <text x="476" y="212" class="boxlabel">MLP sees the radial I(q)</text>
+        <text x="476" y="232" class="boxsub">-&gt; dominates radius / length</text>
+        <text x="476" y="248" class="boxsub">(clean form-factor curve;</text>
+        <text x="476" y="262" class="boxsub">CNN under-trained on this, see &sect;9)</text>
+      </svg>
+      <figcaption>Fig. 1 &mdash; End-to-end data/model pipeline. Every instance produces a matched pair of runs (with / without sample) at the same instrument state.</figcaption>
+    </figure>
+  </section>
+
+  <section id="fix">
+    <div class="sec-head"><span class="sec-num">2</span><h2>The instrument, and the bug found before any data was generated</h2></div>
+    <p><code>eqsans_1.instr</code> was audited first and found to produce <strong>zero</strong> detector counts. Its guide entrance was placed <code>AT (0,0,L1)</code>, where <code>L1=14&nbsp;m</code> is the moderator&ndash;sample distance &mdash; not the guide-entrance distance. That put the guide 13&nbsp;m past the first chopper it needed to feed, in beam-tracing order, so neutrons had to travel backwards to reach it.</p>
+    <div class="grid2">
+      <div class="callout bad"><span class="lbl">Before</span>Guide placed at z&nbsp;=&nbsp;14&nbsp;m, downstream of choppers at 5.7&ndash;9.5&nbsp;m &rarr; <strong>detector_I&nbsp;=&nbsp;0</strong> on every run</div>
+      <div class="callout good"><span class="lbl">After</span><code>guide_start&nbsp;=&nbsp;1.13&nbsp;m</code>, matched to where <code>chopper1</code> actually sits (5.7&nbsp;m) &rarr; full beam reaches the sample and detector</div>
+    </div>
+    <p>The fixed instrument (<code>eqsans_1_fixed.instr</code>, later <code>eqsans_cylinder.instr</code>) uses an <code>SNS_source</code> emitting <code>Emin=1.28&nbsp;meV</code> to <code>Emax=20.45&nbsp;meV</code> &mdash; a <strong>2&ndash;8&nbsp;&Aring;</strong> band &mdash; through three disk choppers before the sample.</p>
+
+    <figure>
+      <img src="instrument_schematic.svg" alt="To-scale schematic of the EQ-SANS instrument: moderator, guides, three choppers, slits, sample and detector, in side and top view, with an inset showing the guide misalignment gx, gy">
+      <figcaption>Fig. 2 &mdash; The simulated instrument (<code>eqsans_cylinder.instr</code>), drawn by <code>make_schematic.py</code> from the instrument file: distances and detector size are read from its <code>DECLARE</code> block, component sizes from its <code>TRACE</code> section. Length along the beam is to scale; transverse sizes are drawn 4&times; larger. The inset shows what <code>gx</code>/<code>gy</code> mean: the first guide's entrance is displaced from the nominal axis, and everything downstream is unchanged.</figcaption>
+    </figure>
+  </section>
+
+  <section id="design">
+    <div class="sec-head"><span class="sec-num">3</span><h2>Experiment design</h2></div>
+    <div class="tbl-wrap card">
+      <table>
+        <thead><tr><th>Target</th><th>Role</th><th class="num">Range</th><th>Identifiability note</th></tr></thead>
+        <tbody>
+          <tr><td><code>gx_mm</code>, <code>gy_mm</code></td><td>Instrument</td><td class="num">&plusmn;20&nbsp;mm (15% exactly aligned)</td><td>Breaks radial symmetry &mdash; needs the 2D image</td></tr>
+          <tr><td><code>radius</code></td><td>Sample</td><td class="num">20&ndash;200&nbsp;&Aring; (log)</td><td>Sets form-factor oscillation period</td></tr>
+          <tr><td><code>length</code></td><td>Sample</td><td class="num">200&ndash;1000&nbsp;&Aring; (log)</td><td>Weaker signal than radius</td></tr>
+          <tr><td><code>pd_radius</code>, <code>pd_length</code></td><td>Sample</td><td class="num">0&ndash;0.30 (linear)</td><td>Competes with the instrument's own finite collimation/wavelength smearing</td></tr>
+          <tr><td><code>contrast</code></td><td>Sample</td><td class="num">|sld&minus;sld<sub>solv</sub>|</td><td>Sign is <strong>not observable</strong> &mdash; see &sect;9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Materials table (particle SLD, 10<sup>&minus;6</sup>&nbsp;&Aring;<sup>&minus;2</sup>)</h3>
+    <div class="tbl-wrap card">
+      <table>
+        <thead><tr><th>Polystyrene</th><th>Silica</th><th>Gold</th><th>d-Polystyrene</th><th>Nickel</th></tr></thead>
+        <tbody><tr><td>1.41</td><td>3.47</td><td>4.50</td><td>6.20</td><td>9.40</td></tr></tbody>
+      </table>
+    </div>
+    <p>One of the five materials is drawn per instance; <code>sld_solvent</code> is swept continuously over <strong>&minus;0.56&hellip;6.34</strong> (pure H&#8322;O &rarr; pure D&#8322;O), so <code>contrast</code> varies smoothly rather than taking only five discrete values. <code>model_scale</code> is held fixed at 1.0 &mdash; it is a Monte&nbsp;Carlo normalization constant, not a physical parameter, so it carries no signal to regress.</p>
+  </section>
+
+  <section id="compute">
+    <div class="sec-head"><span class="sec-num">4</span><h2>Sampling &amp; compute</h2></div>
+    <p>The four continuous sample parameters (<code>radius</code>, <code>length</code>, <code>pd_radius</code>, <code>pd_length</code>) and <code>sld_solvent</code> are drawn from a single 5-dimensional <strong>Latin Hypercube</strong> (<code>scipy.stats.qmc.LatinHypercube</code>) per campaign, giving even coverage of the joint parameter space instead of the clustering plain random sampling would leave at this sample size. <code>radius</code>/<code>length</code> are mapped log-uniform (they span nearly a decade); the rest are linear-uniform.</p>
+    <p>Misalignment is sampled separately: <strong>15%</strong> of instances are forced to <code>gx=gy=0</code> as an exactly-aligned reference class, and the remaining 85% get an independent 2D LHS draw over &plusmn;20&nbsp;mm &mdash; so the model always has some perfectly-aligned examples to calibrate against.</p>
+    <div class="grid3">
+      <div class="card"><strong>10,000 runs</strong><br><span style="color:var(--muted)">5,000 instances &times; (sample_on&nbsp;0/1), <code>ncount=2e6</code> each</span></div>
+      <div class="card"><strong>4.5&nbsp;s / run</strong><br><span style="color:var(--muted)">measured directly on this instrument at this <code>ncount</code></span></div>
+      <div class="card"><strong>~7&nbsp;min engine time</strong><br><span style="color:var(--muted)">estimated: 90 batches of 112 concurrent runs, one mesonet node</span></div>
+    </div>
+    <p style="margin-top:16px">The full campaign is one SLURM job (<code>submit_full.sh</code>, generated by <code>make_run_script.py</code>): <code>--cpus-per-task=112</code>, all 10,000 run commands emitted as <code>&amp;</code>-backgrounded batches of 112 with a <code>wait</code> between batches (90 batches total), inside a 3-hour <code>--time</code> budget. At the measured 4.5&nbsp;s/run, 90 sequential batches is an <em>estimated</em> ~7 minutes of simulation engine time &mdash; against ~12.5&nbsp;CPU-hours if the same 10,000 runs went one at a time, which an earlier version of this script did by accident (see finding #10 in the project history) before batching was added.</p>
+    <div class="callout good"><span class="lbl">Reproducibility</span>Every run directory's raw McStas output (<code>detector.dat</code>, <code>qdet.dat</code>, and companion monitor files) for all 10,000 runs is committed to the shared <code>mccode-dev/PaNRAID-results</code> repository, not just the derived manifest &mdash; so the dataset can be regenerated or re-analyzed without re-running the simulation.</div>
+  </section>
+
+  <section id="data">
+    <div class="sec-head"><span class="sec-num">5</span><h2>What the training data looks like</h2></div>
+    <p>Everything below is real McStas output from <code>eqsans_cylinder.instr</code> at the campaign's <code>ncount=2e6</code>, produced by <code>plot_examples.py</code>. The Juliet raw data is not on this machine, so the controlled cases and the gallery are <strong>re-simulated locally</strong> &mdash; gallery instances use their exact campaign manifest parameters but a fresh Monte&nbsp;Carlo seed, so their noise realization differs from the stored campaign runs.</p>
+
+    <h3>The label distribution</h3>
+    <figure>
+      <img src="examples_target_distributions.png" alt="Histograms of the seven regression targets over the campaign manifest">
+      <figcaption>Fig. 3 &mdash; Target distributions over the 5,000 campaign instances. <code>radius</code>, <code>length</code>, <code>pd_*</code> are flat by construction; misalignment has a spike of 750 exactly-aligned instances (15%) on top of a flat &plusmn;20&nbsp;mm plane; <code>contrast</code> is the one non-flat target, spanning &minus;5 to +10 and concentrated between about &minus;3 and +6, because it is the difference of a five-valued material SLD and a uniformly drawn solvent SLD.</figcaption>
+    </figure>
+
+    <h3>Controlled comparisons: change one parameter, see what moves</h3>
+    <p>Each panel starts from one baseline (radius&nbsp;60&nbsp;&Aring;, length&nbsp;500&nbsp;&Aring;, contrast&nbsp;+2.5, aligned) and changes a single parameter, with a fixed random seed so differences are physics rather than noise.</p>
+    <figure>
+      <img src="examples_iq_sweeps.png" alt="I(q) curves for controlled sweeps of radius, length, polydispersity, contrast, contrast sign, and sample on/off">
+      <figcaption>Fig. 4 &mdash; Radially averaged I(q). <strong>Radius</strong> and <strong>length</strong> change both the overall level and the shape (where the curve rolls off). <strong>Contrast</strong> only rescales the curve: the +4.5 and +0.5 plateaus differ by roughly 85&times;, close to the (4.5/0.5)&sup2;&nbsp;=&nbsp;81 the physics predicts &mdash; the reason inputs must keep their absolute intensity (&sect;8). <strong>Sign of contrast</strong> (bottom middle): +2.5 and &minus;2.5 give curves that overlap exactly, so the sign is not in the data (&sect;9). <strong>Polydispersity</strong> (top right) only subtly damps the ripple near q&nbsp;&asymp;&nbsp;0.08&ndash;0.1&nbsp;&Aring;<sup>&minus;1</sup> &mdash; the visual reason <code>pd_radius</code>/<code>pd_length</code> are so hard to learn.</figcaption>
+    </figure>
+    <figure>
+      <img src="examples_detector_grid.png" alt="Grid of 2D detector images for the same controlled cases">
+      <figcaption>Fig. 5 &mdash; The same cases as 2D detector images, log intensity, colour scale shared within each row so absolute differences stay visible. Larger radius concentrates the pattern toward the centre; lower contrast dims it uniformly; polydispersity is not visible by eye. In the bottom row, a 10&nbsp;mm guide offset cuts the detected flux to about 0.61&times; and moves the intensity centroid by a few millimetres (gx&nbsp;&rarr;&nbsp;horizontal, gy&nbsp;&rarr;&nbsp;vertical), and a 20&nbsp;mm offset in both leaves 0.12&times; &mdash; this flux drop and centroid shift is the signal the CNN uses for <code>gx_mm</code>/<code>gy_mm</code>.</figcaption>
+    </figure>
+
+    <h3>What a random draw from the campaign looks like</h3>
+    <figure>
+      <img src="examples_gallery.png" alt="Eight random campaign detector images and I(q) overlays of 40 random instances coloured by radius and by absolute contrast">
+      <figcaption>Fig. 6 &mdash; Eight random campaign instances (top; parameters in each title) and I(q) for 40 random instances (bottom). Absolute intensity spans roughly 12 orders of magnitude across the design (about 10<sup>7</sup> to 10<sup>19</sup>), which is why inputs are log-transformed and then standardized with one dataset-level mean/std. Colouring by |contrast| shows the ordering is dominated by contrast, with radius acting as a second, shape-level effect &mdash; the two overlap heavily, which is why <code>contrast</code> and <code>radius</code> are entangled in a single curve.</figcaption>
+    </figure>
+  </section>
+
+  <section id="results">
+    <div class="sec-head"><span class="sec-num">6</span><h2>Neural networks: setup and results</h2></div>
+    <p>Two independent regressors are trained to the same 7 targets from two different views of each instance:</p>
+    <div class="grid2">
+      <div class="card"><strong>DetectorCNN</strong> &mdash; 3&times;(Conv&rarr;BatchNorm&rarr;ReLU&rarr;MaxPool), <code>AdaptiveAvgPool2d(4,4)</code>, <code>Linear(1024,64)&rarr;ReLU&rarr;Dropout(0.2)&rarr;Linear(64,7)</code>. Input: the 256&times;256 detector image.</div>
+      <div class="card"><strong>IQMLP</strong> &mdash; <code>Linear(60,128)&rarr;ReLU&rarr;Dropout(0.1)&rarr;Linear(128,64)&rarr;ReLU&rarr;Linear(64,7)</code>. Input: the 60-point radially-averaged I(q) curve.</div>
+    </div>
+    <p style="margin-top:16px">Both trained with <strong>Adam</strong> (<code>lr=1e-3</code>, <code>weight_decay=1e-4</code>), batch size 32, masked MSE on dataset-level standardized targets. Data is split <strong>70/15/15 by <code>instance_id</code></strong>, not by row &mdash; so a sample's <code>sample_on=0</code> and <code>sample_on=1</code> runs always land in the same split, which matters because they share every ground-truth label except <code>contrast</code>'s visibility; splitting them across train/test would leak.</p>
+
+    <h3>Full campaign (5,000 instances, 50 epochs) &mdash; held-out test R&sup2;</h3>
+    <figure>
+      <img src="r2_bar.png" alt="Bar chart of test R-squared per target for CNN and MLP">
+      <figcaption>Fig. 7 &mdash; Held-out test R&sup2; per target. CNN and MLP split cleanly by which input actually contains the signal for that target.</figcaption>
+    </figure>
+
+    <div class="tbl-wrap card">
+      <table>
+        <thead><tr><th>Target</th><th class="num">CNN (image)</th><th class="num">MLP (I(q))</th><th>Read</th></tr></thead>
+        <tbody>
+          <tr><td><code>gx_mm</code></td><td class="num"><span class="badge good">0.807</span></td><td class="num">0.031</td><td>CNN-only signal</td></tr>
+          <tr><td><code>gy_mm</code></td><td class="num"><span class="badge good">0.896</span></td><td class="num">&minus;0.003</td><td>CNN-only signal</td></tr>
+          <tr><td><code>radius</code></td><td class="num">0.569</td><td class="num"><span class="badge good">0.918</span></td><td>MLP wins; CNN still converging (&sect;9)</td></tr>
+          <tr><td><code>length</code></td><td class="num">0.033</td><td class="num"><span class="badge good">0.451</span></td><td>Weak-signal target; needs the I(q) curve</td></tr>
+          <tr><td><code>pd_radius</code></td><td class="num">&minus;0.005</td><td class="num">0.132</td><td>Weak but real; data-hungry</td></tr>
+          <tr><td><code>pd_length</code></td><td class="num">&minus;0.002</td><td class="num">0.003</td><td><span class="badge bad">Effectively unlearned at this scale</span></td></tr>
+          <tr><td><code>contrast</code></td><td class="num">0.390</td><td class="num"><span class="badge good">0.468</span></td><td>Capped by sign non-identifiability (&sect;9)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What changed between the smoke test and the full campaign</h3>
+    <div class="tbl-wrap card">
+      <table>
+        <thead><tr><th>Run</th><th class="num">Instances</th><th class="num">Epochs</th><th class="num">contrast R&sup2; (CNN)</th><th class="num">contrast R&sup2; (MLP)</th></tr></thead>
+        <tbody>
+          <tr><td>Smoke, before normalization fix</td><td class="num">500</td><td class="num">25</td><td class="num"><span class="badge bad">0.06</span></td><td class="num"><span class="badge bad">0.01</span></td></tr>
+          <tr><td>Smoke, after normalization fix</td><td class="num">500</td><td class="num">25</td><td class="num">0.41</td><td class="num">0.47</td></tr>
+          <tr><td>Full campaign</td><td class="num">5,000</td><td class="num">50</td><td class="num">0.39</td><td class="num">0.468</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The fix (&sect;8) is what moved <code>contrast</code>; a further 10&times; of data did not move it further. That is consistent with &sect;9's diagnosis &mdash; the ceiling on <code>contrast</code> is the sign ambiguity itself, not sample size, so it will not respond to more data the way <code>length</code> and <code>radius</code> did.</p>
+
+    <figure>
+      <img src="predicted_vs_true.png" alt="Predicted vs true scatter plots for all seven targets, both models">
+      <figcaption>Fig. 8 &mdash; Predicted vs. true, held-out test instances. Note the V-shaped <code>contrast</code> panels (&sect;9) and the CNN <code>radius</code> saturation at high true values (&sect;9).</figcaption>
+    </figure>
+
+    <figure>
+      <img src="loss_curves.png" alt="Training and validation loss curves over 50 epochs for CNN and MLP">
+      <figcaption>Fig. 9 &mdash; Training curves, 50 epochs. MLP plateaus by ~epoch 15&ndash;20; CNN is <strong>still falling steeply at epoch 50</strong> &mdash; direct evidence it was undertrained, not underpowered.</figcaption>
+    </figure>
+  </section>
+
+  <section id="classical">
+    <div class="sec-head"><span class="sec-num">7</span><h2>Classical regressors on the same split</h2></div>
+    <p>Seven scikit-learn / XGBoost regressors were trained on exactly the same data and the same 70/15/15 split (by <code>instance_id</code>, same seed) as the neural networks, so the R&sup2; values are directly comparable: ridge, kNN (k=10), RBF-SVR, random forest, extra trees, histogram gradient boosting and XGBoost. They ran on Juliet (<code>submit_classical.sbatch</code>, CPU only). All use fixed default-style hyperparameters &mdash; nothing was tuned on the test set. The test split is 750 instances (1,500 runs; 750 sample-on rows for the sample targets), so differences of about 0.01&ndash;0.02 between classical methods are within noise.</p>
+    <p>Two input sets were compared: <strong>iq</strong> (the same 60-point log I(q) the MLP sees) and <strong>iq+img</strong> (I(q) plus 73 summary features of the 2D image: log total counts, intensity centroid and widths in mm, four quadrant flux fractions, and an 8&times;8 block-summed log image). A target <code>abs_contrast</code> = |contrast| was added, because the sign of contrast is not recoverable (&sect;9).</p>
+
+    <figure>
+      <img src="classical_r2.png" alt="Heatmap of held-out test R-squared for the CNN, MLP and seven classical regressors on two feature sets, for each target">
+      <figcaption>Fig. 10 &mdash; Held-out test R&sup2; for every method and feature set (the top two rows are the CNN and MLP from &sect;6). The colour scale is clipped to 0&ndash;1; the printed numbers are the true values.</figcaption>
+    </figure>
+
+    <div class="tbl-wrap card">
+      <table>
+        <thead><tr><th>Target</th><th class="num">Best neural net</th><th class="num">Best classical</th><th>Which classical model</th></tr></thead>
+        <tbody>
+          <tr><td><code>gx_mm</code></td><td class="num">0.807 (CNN)</td><td class="num"><span class="badge good">0.978</span></td><td>Hist. gradient boosting [iq+img]</td></tr>
+          <tr><td><code>gy_mm</code></td><td class="num">0.896 (CNN)</td><td class="num"><span class="badge good">0.981</span></td><td>Extra trees [iq+img]</td></tr>
+          <tr><td><code>radius</code></td><td class="num">0.918 (MLP)</td><td class="num"><span class="badge good">0.958</span></td><td>Ridge [iq+img] (every model &ge; 0.91)</td></tr>
+          <tr><td><code>length</code></td><td class="num">0.451 (MLP)</td><td class="num">0.492</td><td>Ridge [iq+img]</td></tr>
+          <tr><td><code>pd_radius</code></td><td class="num">0.132 (MLP)</td><td class="num"><span class="badge good">0.494</span></td><td>Extra trees [iq]</td></tr>
+          <tr><td><code>pd_length</code></td><td class="num">0.003</td><td class="num"><span class="badge bad">0.001</span></td><td>none &mdash; all 14 combinations between &minus;0.09 and 0.001</td></tr>
+          <tr><td><code>contrast</code> (signed)</td><td class="num">0.468 (MLP)</td><td class="num">0.501</td><td>XGBoost [iq+img]</td></tr>
+          <tr><td><code>|contrast|</code></td><td class="num">not trained</td><td class="num"><span class="badge good">0.928</span></td><td>Hist. gradient boosting [iq+img]</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What the classical models show</h3>
+    <ul class="tick">
+      <li><strong>Misalignment is almost a linear function of two image features.</strong> The intensity centroid alone carries about half of the random forest's importance for <code>gx_mm</code> (centroid x) and <code>gy_mm</code> (centroid y) (Fig.&nbsp;11), and plain ridge regression already reaches 0.971 / 0.977. On I(q) alone, every model is at or below 0.06 &mdash; radial averaging discards the shift. The CNN (0.81 / 0.90) was learning this the hard way.</li>
+      <li><strong>Sample size is easy.</strong> <code>radius</code> reaches 0.94&ndash;0.95 from I(q) alone with any method, even ridge; with image features the forest leans on the pattern's widths (Fig.&nbsp;11).</li>
+      <li><strong>The sign fold is visible directly.</strong> In the signed-<code>contrast</code> panel of Fig.&nbsp;12, true contrasts of &minus;4 to &minus;2 are predicted as positive values, and the fit bottoms out near 0. Switching the target to |contrast| lifts R&sup2; from 0.50 to 0.93.</li>
+      <li><strong><code>pd_radius</code> is partly learnable</strong> (0.49 from I(q) with extra trees, against 0.13 for the MLP), driven by the high-q bins (0.09&ndash;0.15 &Aring;<sup>&minus;1</sup>) where polydispersity damps the ripples. Adding image features did not help.</li>
+      <li><strong><code>pd_length</code> is not learnable here.</strong> Fig.&nbsp;12 shows the best model simply predicting the mean. Fourteen method/feature combinations all fail, which points to an information limit of this data (Monte&nbsp;Carlo noise at <code>ncount=2e6</code> against a weak effect), not to a modelling gap.</li>
+      <li><strong><code>length</code> stays around 0.3&ndash;0.5</strong>, with small, diffuse feature importances (at most 0.04) and predictions that shrink toward the mean at the extremes.</li>
+    </ul>
+
+    <figure>
+      <img src="classical_importance.png" alt="Random forest feature importances for gx, gy, radius, length, pd_radius and abs_contrast">
+      <figcaption>Fig. 11 &mdash; Random-forest feature importances (top 10 per target, iq+img features). Centroid x/y dominate <code>gx_mm</code>/<code>gy_mm</code>; image widths dominate <code>radius</code>; high-q I(q) bins lead <code>pd_radius</code>; block sums near the centre of the image (total intensity level) lead |contrast|.</figcaption>
+    </figure>
+    <figure>
+      <img src="classical_predicted_vs_true.png" alt="Predicted versus true for the best classical model on each target">
+      <figcaption>Fig. 12 &mdash; Predicted vs. true for the best classical model per target on held-out test rows. Note the folded signed-<code>contrast</code> panel, the flat <code>pd_length</code> line, and the shrinkage toward the mean at large <code>length</code> and <code>radius</code>.</figcaption>
+    </figure>
+
+    <div class="callout warn"><span class="lbl">Read this comparison fairly</span>The classical models were given engineered summary features and the |contrast| target; the neural networks were given raw pixels or the raw curve, a signed contrast, an unweighted pooled loss, and 50 epochs with a fixed learning rate. So this shows that <em>this pipeline as configured</em> does better with tabular features &mdash; not that a neural network cannot match it. It does set the bar: any retrained network (&sect;10) should beat these numbers before it is preferred.</div>
+  </section>
+
+  <section id="diagnosis">
+    <div class="sec-head"><span class="sec-num">8</span><h2>The normalization bug that was fixed</h2></div>
+    <p>The original image loader normalized each detector image by its own peak (<code>img / img.max()</code>), copied uncritically from the workshop's classification-notebook lineage &mdash; where that's the right call, because classification only needs shape. Regression needs absolute scale too: intensity is proportional to <code>(sld&minus;sld<sub>solvent</sub>)&sup2;</code>, so forcing every image to peak at exactly 1.0 erases the one channel that carries <code>contrast</code>.</p>
+    <p><strong>Verified mechanistically</strong>, not just reasoned about: two real McStas runs differing only in contrast (0.5 vs 9.9) showed a 403&times; intensity ratio, matching the theoretical 392&times; prediction. Under the old per-image normalization both images were forced to an identical peak of 1.0 (mean pixel difference 0.25, pure noise); under dataset-level normalization &mdash; mean/std fit once from a training-split subsample, applied uniformly &mdash; the same pair kept a 4&times; larger, physically real separation.</p>
+    <div class="callout good"><span class="lbl">Fixed</span><code>load_detector_image_raw</code>/<code>load_iq_raw</code> apply no per-sample scaling; <code>fit_normalization()</code> computes mean/std once from training data and both <code>ImageDataset</code>/<code>IQDataset</code> apply it uniformly. Confirmed by the smoke-test contrast R&sup2; jump in the table above.</div>
+  </section>
+
+  <section id="open">
+    <div class="sec-head"><span class="sec-num">9</span><h2>Two things still limiting the numbers above</h2></div>
+
+    <h3>The <code>contrast</code> target has a real identifiability bug</h3>
+    <div class="grid2">
+      <div>
+        <p>Scattered intensity depends on <code>(sld&minus;sld<sub>solvent</sub>)&sup2;</code> &mdash; squared. <code>+5</code> and <code>&minus;5</code> contrast are physically indistinguishable from a single measurement. The V-shaped scatter in Fig.&nbsp;8 is the model correctly converging toward <code>|contrast|</code> while being scored against a signed target it cannot recover the sign of. Fig.&nbsp;4 (bottom middle) confirms this with real simulations: contrast +2.5 and &minus;2.5 give identical I(q).</p>
+        <div class="callout warn"><span class="lbl">Fix</span>Regress <code>|contrast|</code> (or <code>contrast&sup2;</code>) instead of signed contrast, in both <code>make_run_script.py</code>'s manifest and <code>train_regressor.py</code>'s target list.</div>
+      </div>
+      <figure style="margin:0">
+        <svg viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Parabola showing intensity depends on contrast squared, so plus and minus five give the same intensity">
+          <style>
+            .ax { stroke: var(--line); stroke-width: 1.4; }
+            .curve { stroke: var(--accent); stroke-width: 2.2; fill: none; }
+            .pt { fill: var(--ink); }
+            .lab { fill: var(--muted); font: 11px -apple-system,sans-serif; }
+          </style>
+          <line x1="20" y1="190" x2="280" y2="190" class="ax"></line>
+          <line x1="150" y1="20" x2="150" y2="190" class="ax"></line>
+          <path d="M 40 40 Q 150 200 260 40" class="curve"></path>
+          <circle cx="90" cy="112" r="4" class="pt"></circle>
+          <circle cx="210" cy="112" r="4" class="pt"></circle>
+          <text x="78" y="130" class="lab">&minus;5</text>
+          <text x="200" y="130" class="lab">+5</text>
+          <text x="255" y="205" class="lab">signed contrast</text>
+          <text x="24" y="34" class="lab">intensity</text>
+        </svg>
+        <figcaption>Fig. 13 &mdash; Same intensity, opposite sign of contrast.</figcaption>
+      </figure>
+    </div>
+
+    <h3>The CNN was undertrained, not underpowered</h3>
+    <p>Fig.&nbsp;9's CNN validation loss is at its steepest descent in the final 10 of 50 epochs &mdash; it had not converged when training stopped. This directly explains why CNN trails MLP on <code>radius</code>/<code>length</code> despite having richer input: it simply hadn't finished learning to use it.</p>
+    <div class="callout warn"><span class="lbl">Fix</span>Retrain CNN for 150&ndash;200 epochs, or add a learning-rate schedule (cosine or <code>ReduceLROnPlateau</code>) to converge faster within a similar budget. The existing <code>eqsans_regressor_checkpoint_cnn_only.pt</code> intermediate save (added after the "epoch=50 on a 1-hour budget" risk was flagged) protects a longer run against the SLURM job being killed mid-training.</div>
+
+    <h3>Why isn't <code>sld</code> itself a target?</h3>
+    <p>Because both <code>sld</code> and <code>sld_solvent</code> vary independently in this design, and the data only constrains their difference &mdash; <code>sld</code> alone (and material identity) is <strong>information-theoretically unrecoverable</strong> from a single measurement, not just hard to learn. Real contrast-variation SANS experiments solve this by measuring the same sample at several <em>known</em> solvent contrasts and fitting jointly &mdash; a different, larger campaign than a single-shot design, not a training fix.</p>
+  </section>
+
+  <section id="recs">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Recommended next steps, in order</h2></div>
+    <ol class="steps">
+      <li><strong>Regress |contrast|</strong> instead of signed contrast in both <code>make_run_script.py</code>'s manifest and <code>train_regressor.py</code>'s targets. This is now demonstrated, not just argued: R&sup2; goes from 0.50 to 0.93 (&sect;7).</li>
+      <li><strong>Adopt gradient boosting or extra trees on I(q) + image summary features as the baseline</strong> (<code>gx</code>/<code>gy</code> 0.98, <code>radius</code> 0.96, |contrast| 0.93). It trains in minutes on CPU and is the number a neural network has to beat.</li>
+      <li><strong>If keeping the networks, fix them first:</strong> average the loss per target so <code>gx</code>/<code>gy</code> do not get about 4&times; the weight of each sample target, train the CNN much longer with a learning-rate schedule, and give both networks the engineered features (centroid, widths, total counts) alongside the raw input &mdash; a fusion model.</li>
+      <li><strong>Treat <code>pd_length</code> as an information limit before spending more effort.</strong> Fourteen methods fail identically; the cheap test is a small set of higher-<code>ncount</code> simulations, or dropping it from the target list.</li>
+      <li><strong>If recovering <code>sld</code> matters</strong>, redesign the campaign around paired measurements at known solvent contrasts per sample, not a single random draw.</li>
+    </ol>
+  </section>
+
+  <section id="files">
+    <div class="sec-head"><span class="sec-num">11</span><h2>Reproducibility</h2></div>
+    <p>Everything below lives in <code>Group2/</code> of the project repository (<code>mccode-dev/PaNRAID-results</code>).</p>
+    <div class="filelist mono">
+      <div>eqsans_1_fixed.instr</div>
+      <div>eqsans_cylinder.instr</div>
+      <div>make_run_script.py</div>
+      <div>submit_full.sh</div>
+      <div>submit_train.sbatch</div>
+      <div>train_regressor.py</div>
+      <div>plot_results.py</div>
+      <div>train_classical.py</div>
+      <div>submit_classical.sbatch</div>
+      <div>make_schematic.py</div>
+      <div>instrument_schematic.svg</div>
+      <div>plot_examples.py</div>
+      <div>submit_full_manifest.json</div>
+      <div>eqsans_regressor_checkpoint.pt</div>
+    </div>
+  </section>
+
+</div>
+
+<footer>Generated for the PaNRAID School Group 2 final project &middot; McStas 3.8.5 &middot; Juliet / mesonet (juliet2&#8211;4, 336 cores, 23&times;A100)</footer>
