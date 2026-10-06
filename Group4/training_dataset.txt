@@ -1,0 +1,130 @@
+# ============================================================
+# TRAINING DATASET
+# 900 images PSD 64x64
+#
+# R1     : 650 -> 850  (10 valeurs)
+# R2     : 550 -> 750  (10 valeurs)
+# theta1 : 0.004 -> 0.006 (3 valeurs)
+# theta2 : 0.004 -> 0.006 (3 valeurs)
+#
+# 10 x 10 x 3 x 3 = 900 simulations
+#
+# 1e6 photons par simulation
+# MPI automatique
+# ============================================================
+
+# ------------------------------------------------------------
+# Paramètres
+# ------------------------------------------------------------
+
+$R1_values = 0..9 | ForEach-Object {
+    650 + $_ * (850 - 650) / 9
+}
+
+$R2_values = 0..9 | ForEach-Object {
+    550 + $_ * (750 - 550) / 9
+}
+
+$theta1_values = @(0.004, 0.005, 0.006)
+$theta2_values = @(0.004, 0.005, 0.006)
+
+# ------------------------------------------------------------
+# Répertoire principal
+# ------------------------------------------------------------
+
+$datasetDir = "training_dataset"
+
+if (!(Test-Path $datasetDir)) {
+    New-Item -ItemType Directory $datasetDir | Out-Null
+}
+
+# ------------------------------------------------------------
+# Fichier CSV
+# ------------------------------------------------------------
+
+$csvFile = Join-Path $datasetDir "parameters.csv"
+
+"id,R1,R2,theta1,theta2" | Out-File $csvFile -Encoding utf8
+
+# ------------------------------------------------------------
+# Compteur
+# ------------------------------------------------------------
+
+$id = 0
+
+# ------------------------------------------------------------
+# Boucle sur les 900 combinaisons
+# ------------------------------------------------------------
+
+foreach ($R1 in $R1_values) {
+
+    foreach ($R2 in $R2_values) {
+
+        foreach ($theta1 in $theta1_values) {
+
+            foreach ($theta2 in $theta2_values) {
+
+                $id++
+
+                $idString = "{0:D4}" -f $id
+
+                # Répertoire de sortie de cette simulation
+                $outDir = Join-Path $datasetDir $idString
+
+                Write-Host ""
+                Write-Host "============================================"
+                Write-Host "Simulation $id / 900"
+                Write-Host "R1     = $R1"
+                Write-Host "R2     = $R2"
+                Write-Host "theta1 = $theta1"
+                Write-Host "theta2 = $theta2"
+                Write-Host "Photons = 1e6"
+                Write-Host "============================================"
+
+                # ------------------------------------------------
+                # Lancement McStas / MPI
+                # ------------------------------------------------
+
+                mxrun --mpi=auto `
+                    Test_KB.instr `
+                    -d $outDir `
+                    -n 1000000 `
+                    R1=$R1 `
+                    R2=$R2 `
+                    theta1=$theta1 `
+                    theta2=$theta2
+
+                # ------------------------------------------------
+                # Vérification du résultat
+                # ------------------------------------------------
+
+                if ($LASTEXITCODE -eq 0) {
+
+                    "$idString,$R1,$R2,$theta1,$theta2" |
+                        Add-Content $csvFile
+
+                    Write-Host "Simulation $id OK"
+
+                }
+                else {
+
+                    Write-Host "ERREUR simulation $id"
+                    Write-Host "Les paramètres n'ont pas été ajoutés au CSV."
+                }
+            }
+        }
+    }
+}
+
+# ------------------------------------------------------------
+# Fin
+# ------------------------------------------------------------
+
+Write-Host ""
+Write-Host "============================================"
+Write-Host "TRAINING DATASET TERMINE"
+Write-Host "============================================"
+Write-Host "Simulations traitees : $id / 900"
+Write-Host "Dataset              : $datasetDir"
+Write-Host "Parametres            : $csvFile"
+Write-Host "============================================"

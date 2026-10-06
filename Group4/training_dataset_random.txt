@@ -1,0 +1,176 @@
+# ============================================================
+# TRAINING DATASET - LATIN HYPERCUBE SAMPLING
+#
+# 900 images PSD 64x64
+# 1e6 photons par simulation
+# MPI automatique
+#
+# Paramètres :
+# R1     : [650, 850]
+# R2     : [550, 750]
+# theta1 : [0.004, 0.006]
+# theta2 : [0.004, 0.006]
+# ============================================================
+
+# ------------------------------------------------------------
+# Configuration
+# ------------------------------------------------------------
+
+$N = 900
+
+# Seed pour rendre le dataset reproductible
+$seed = 12345
+
+$random = [System.Random]::new($seed)
+
+# ------------------------------------------------------------
+# Répertoire du dataset
+# ------------------------------------------------------------
+
+$datasetDir = "training_dataset_random"
+
+if (!(Test-Path $datasetDir)) {
+    New-Item -ItemType Directory $datasetDir | Out-Null
+}
+
+# ------------------------------------------------------------
+# Fichier CSV
+# ------------------------------------------------------------
+
+$csvFile = Join-Path $datasetDir "parameters.csv"
+
+"id,R1,R2,theta1,theta2" | Out-File $csvFile -Encoding utf8
+
+# ============================================================
+# FONCTION LHS
+# ============================================================
+#
+# Pour chaque paramètre :
+#
+#   [0,1] est divisé en N intervalles.
+#
+#   Dans chaque intervalle, on tire un point aléatoire.
+#
+#   Les N points sont ensuite mélangés.
+#
+# ============================================================
+
+function New-LHS($N, $random) {
+
+    $values = New-Object double[] $N
+
+    for ($i = 0; $i -lt $N; $i++) {
+
+        # Un point aléatoire dans l'intervalle i
+        $u = $random.NextDouble()
+
+        $values[$i] = ($i + $u) / $N
+    }
+
+    # --------------------------------------------------------
+    # Mélange Fisher-Yates
+    # --------------------------------------------------------
+
+    for ($i = $N - 1; $i -gt 0; $i--) {
+
+        $j = $random.Next(0, $i + 1)
+
+        $tmp = $values[$i]
+        $values[$i] = $values[$j]
+        $values[$j] = $tmp
+    }
+
+    return $values
+}
+
+# ============================================================
+# GENERATION LHS
+# ============================================================
+
+$lhs_R1     = New-LHS $N $random
+$lhs_R2     = New-LHS $N $random
+$lhs_theta1 = New-LHS $N $random
+$lhs_theta2 = New-LHS $N $random
+
+# ============================================================
+# BOUCLE SUR LES 900 SIMULATIONS
+# ============================================================
+
+for ($i = 0; $i -lt $N; $i++) {
+
+    $id = $i + 1
+
+    $idString = "{0:D4}" -f $id
+
+    # --------------------------------------------------------
+    # Conversion [0,1] -> intervalles physiques
+    # --------------------------------------------------------
+
+    $R1 = 650 + $lhs_R1[$i] * (850 - 650)
+
+    $R2 = 550 + $lhs_R2[$i] * (750 - 550)
+
+    $theta1 = 0.004 + $lhs_theta1[$i] * (0.006 - 0.004)
+
+    $theta2 = 0.004 + $lhs_theta2[$i] * (0.006 - 0.004)
+
+    # --------------------------------------------------------
+    # Répertoire de sortie
+    # --------------------------------------------------------
+
+    $outDir = Join-Path $datasetDir $idString
+
+    Write-Host ""
+    Write-Host "============================================"
+    Write-Host "Simulation $id / $N"
+    Write-Host "R1     = $R1"
+    Write-Host "R2     = $R2"
+    Write-Host "theta1 = $theta1"
+    Write-Host "theta2 = $theta2"
+    Write-Host "Photons = 1e6"
+    Write-Host "============================================"
+
+    # --------------------------------------------------------
+    # Lancement McStas
+    # --------------------------------------------------------
+
+    mxrun --mpi=auto `
+        Test_KB.instr `
+        -d $outDir `
+        -n 1000000 `
+        R1=$R1 `
+        R2=$R2 `
+        theta1=$theta1 `
+        theta2=$theta2
+
+    # --------------------------------------------------------
+    # Vérification
+    # --------------------------------------------------------
+
+    if ($LASTEXITCODE -eq 0) {
+
+        "$idString,$R1,$R2,$theta1,$theta2" |
+            Add-Content $csvFile
+
+        Write-Host "Simulation $id OK"
+
+    }
+    else {
+
+        Write-Host "ERREUR simulation $id"
+    }
+}
+
+# ============================================================
+# FIN
+# ============================================================
+
+Write-Host ""
+Write-Host "============================================"
+Write-Host "TRAINING DATASET TERMINE"
+Write-Host "============================================"
+Write-Host "Nombre de simulations : $N"
+Write-Host "Dataset               : $datasetDir"
+Write-Host "Parametres             : $csvFile"
+Write-Host "Seed                   : $seed"
+Write-Host "============================================"
